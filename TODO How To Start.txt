@@ -1,0 +1,46 @@
+
+REQUIREMENTS
+
+- Ensure you follow "Best Practice" as defined
+    in the assignment specifications and in Lecture 5. 
+- Test while writing each method.
+    Remove your tests after you know it is working.
+- Ensure you make git commits after every major change (minimum 10).
+- Write doc strings in each class and each method.
+    Doc strings are written within triple quotes on first line
+    inside class or method, for example:
+    class Food:
+    '''Superclass for other types of Foods in the PizzaShop.
+    '''
+    def __init__(self, name, price):
+        '''Initialises name and price. Called by subclasses using super().
+        '''
+        pass 	#TODO initialise name and price
+- Write comments to describe important sections of code.
+
+
+TASKS
+
+By week 8:
+- Write academic integrity comment in pizza_shop.py
+- Write academic integrity comment in test_driver.py
+- Initialize git repository
+    Make commits after every major change (minimum 10).
+
+By week 9:
+- Write Food class. 
+- Start PizzaBase class.
+
+By week 10:
+- Complete PizzaBase class.
+- Write a unittest or a pytest for PizzaBase class. 
+    Test 5 methods: 1 'safe' and 1 'dangerous' test each.
+- Write Pizza class.
+
+By week 11:
+- Write PizzaShop class. 
+- Test thoroughly.
+
+By week 12:
+- Ensure output matches sample output in specifications.
+- Remove all "TODO" comments in code.
