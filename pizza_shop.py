@@ -26,8 +26,10 @@ class Food:
     
     def clone(self):
         # return Food(self.__name, self.__price)
-        return type(self)(self.__name, self.__price)
-        
+        if isinstance(self, Food):
+            return type(self)(self.__name, self.__price)
+        else:
+            raise TypeError("Cannot clone object of different class")
     def equalCheck(self, other):
         if isinstance(other, Food):
             return (self.__name == other.__name) and (self.__price == other.__price)
@@ -43,7 +45,10 @@ class PizzaBase(Food):
 
     def clone(self):
         # return PizzaBase(self.getName(), self.getPrice(), self.__diameter)
-        return type(self)(self.getName(), self.getPrice(), self.__diameter)
+        if isinstance(self, PizzaBase):
+            return type(self)(self.getName(), self.getPrice(), self.__diameter)
+        else:
+            raise TypeError("Cannot clone object of different class")
 
     def equalCheck(self, other):
         if isinstance(other, PizzaBase):
