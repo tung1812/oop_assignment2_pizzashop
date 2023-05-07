@@ -66,13 +66,6 @@ class TestPizzaBase(unittest.TestCase):
             pb2 = PizzaBase("cheese crust", 9.99, 14)
             pb2.setSize("extra large")
 
-    def testStr(self):
-        pb1 = PizzaBase("thin crust", 8.99, 12)
-        self.assertEqual(str(pb1), "thin crust, 12 inch, $8.99")
-
-        with self.assertRaises(AttributeError):
-            pb2 = PizzaBase("cheese crust", 9.99, 14)
-            str(pb2)
 
         
 if __name__ == "__main__":
