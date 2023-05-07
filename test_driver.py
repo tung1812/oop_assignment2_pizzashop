@@ -18,8 +18,9 @@ class TestPizzaBase(unittest.TestCase):
         self.assertEqual(pb1.getPrice(), pb2.getPrice())
         self.assertEqual(pb1.getDiameter(), pb2.getDiameter())
 
-        with self.assertRaises(AttributeError):
-            pb3 = pb1.clone(1)
+        # Test with dangerous argument
+        with self.assertRaises(TypeError):
+            pb1.clone(None)
 
     def testEqualCheck(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
