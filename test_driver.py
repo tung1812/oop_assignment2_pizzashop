@@ -6,7 +6,7 @@
 # This is my own work as defined by the 
 # Academic Integrity policy. 
 
-from pizza_shop import PizzaBase
+from pizza_shop import *
 import unittest
 
 class TestPizzaBase(unittest.TestCase):
@@ -18,9 +18,10 @@ class TestPizzaBase(unittest.TestCase):
         self.assertEqual(pb1.getPrice(), pb2.getPrice())
         self.assertEqual(pb1.getDiameter(), pb2.getDiameter())
 
+        f = Food("ham", 2)
         # Test with dangerous argument
         with self.assertRaises(TypeError):
-            pb1.clone(None)
+            PizzaBase.clone(f)
 
     def testEqualCheck(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
@@ -34,33 +35,25 @@ class TestPizzaBase(unittest.TestCase):
 
     def testCostPerSquareInch(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
-        self.assertAlmostEqual(pb1.costPerSquareInch(), 0.198, places=3)
+        self.assertAlmostEqual(pb1.costPerSquareInch(), 0.079, places=3)
 
         with self.assertRaises(ZeroDivisionError):
             pb2 = PizzaBase("cheese crust", 0, 12)
             pb2.costPerSquareInch()
 
-    def testGetDiameter(self):
+    def testScaleCost(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
-        self.assertEqual(pb1.getDiameter(), 12)
-
-        with self.assertRaises(AttributeError):
-            pb2 = PizzaBase("cheese crust", 9.99, 14)
-            pb2.getDiameter()
-
-    def testSetDiameter(self):
-        pb1 = PizzaBase("thin crust", 8.99, 12)
-        pb1.setDiameter(10)
-        self.assertAlmostEqual(pb1.getPrice(), 6.37, places=2)
+        pb1.scaleCost(10)
+        self.assertAlmostEqual(pb1.getPrice(), 6.24, places=2)
 
         with self.assertRaises(ValueError):
             pb2 = PizzaBase("cheese crust", 9.99, 14)
-            pb2.setDiameter(20)
+            pb2.scaleCost(20)
 
     def testSetSize(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
         pb1.setSize("small")
-        self.assertAlmostEqual(pb1.getPrice(), 3.99, places=2)
+        self.assertAlmostEqual(pb1.getPrice(), 6.24, places=2)
 
         with self.assertRaises(ValueError):
             pb2 = PizzaBase("cheese crust", 9.99, 14)
