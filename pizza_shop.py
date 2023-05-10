@@ -40,27 +40,32 @@ class Food:
         return f"name: {self.__name}, price: {self.__price}$"
 
 class PizzaBase(Food):
-    def __init__(self, name, price, diameter):
+    def __init__(self, name, price):
         super().__init__(name, price)
-        self.__diameter = diameter
+        self.__diameter = 14
+
+    # def setDiameter(self, diameter):
+    #     self.__diameter = diameter
+
+    def getDiameter(self):
+        return self.__diameter
 
     def clone(self):
-        # return PizzaBase(self.getName(), self.getPrice(), self.__diameter)
         if isinstance(self, PizzaBase):
-            return type(self)(self.getName(), self.getPrice(), self.__diameter)
+            return type(self)(self.getName(), self.getPrice())
         else:
             raise TypeError("Cannot clone object of different class")
 
     def equalCheck(self, other):
         if isinstance(other, PizzaBase):
-            return (self.getName() == other.getName()) and (self.getPrice() == other.getPrice()) and (self.__diameter == other.__diameter)
+            return (
+                self.getName() == other.getName()
+                and self.getPrice() == other.getPrice())
+
 
     def costPerSquareInch(self):
         radius = self.__diameter / 2
-        return self.getPrice() / (math.pi * radius**2)
-
-    def getDiameter(self):
-        return self.__diameter
+        return self.getPrice() / (math.pi * radius ** 2)
 
     def scaleCost(self, diameter):
         costPerSquareInch = self.costPerSquareInch()
@@ -70,17 +75,29 @@ class PizzaBase(Food):
 
     def setSize(self, size):
         if size == "small":
+            # self.setDiameter(10)
             self.scaleCost(10)
         elif size == "medium":
+            # self.setDiameter(12)
             self.scaleCost(12)
         elif size == "large":
+            # self.setDiameter(14)
             self.scaleCost(14)
         else:
             raise ValueError("Must be one of Small, Medium, Large")
-
+    def getSize(self):
+        if self.__diameter == 10:
+            return "small"
+        if self.__diameter == 12:
+            return "medium"
+        if self.__diameter == 14:
+            return "large"
+        
     def __str__(self):
-        return f"{self.getName()}, {self.__diameter} inch, ${self.getPrice():.2f}"
-
+        if self.__diameter is None:
+            return f"{self.getName()}, diameter: Unknown, ${self.getPrice():.2f}"
+        else:
+            return f"{self.getName()}, diameter: {self.__diameter} inch, ${self.getPrice():.2f}"
 
 
 class Pizza(Food):
@@ -133,73 +150,195 @@ class Pizza(Food):
         return True
 
     def __str__(self):
-        return f"Name: {self.getName()} price: {self.getPrice()} base: {self.currentBase} toppings: {self.currentToppings}"
+        return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.originalBase} toppings: {self.currentToppings}"
 
+
+
+    
+    
 class PizzaShop:
     def __init__(self):
         self.ingredients = []
         self.menu = []
-
+        self.orderHistory = []
     def load_ingredients(self):
         with open(os.path.join('files', 'ingredients.txt')) as file:
             for line in file:
                 line = line.strip()
                 if line.startswith('base:'):
                     name, price = line[5:].strip().split('$')
-                    base = PizzaBase(name.strip(), 0, float(price))
-                    self.menu.append(base)
+                    base = PizzaBase(name.strip(), float(price))
+                    self.ingredients.append(base)
                 else:
                     name, price = line.strip().split('$')
                     ingredient = Food(name.strip(), float(price))
                     self.ingredients.append(ingredient)
 
-        # Read the menu from menu.txt
     def load_menu(self):
-        pizzas = []
-        with open('menu.txt', 'r') as f:
-            for line in f:
-                parts = line.strip().split('$')
-                name = parts[0]
-                price = float(parts[1])
-                base, *toppings = parts[2].split(', ')
-                pizzas.append(Pizza(name, price, base, toppings))
-        return pizzas
+        with open(os.path.join('files', 'menu.txt'), 'r') as file:
+            for line in file:
+                name = line[0 : line.index("$") - 1]
+                price = line[line.index("$")+1 : line.index("$") + 3]
+                toppingStr = line[line.index("$") + 4 : len(line) - 1]
+                toppings = toppingStr.split(',' + ' ')
+                toppings_food = []
+                for i in range(len(toppings)):
+                    for ingredient in self.ingredients:
+                        if toppings[i] == ingredient.getName():
+                            toppings_food.append(ingredient.clone())
 
+                base = PizzaBase("thin crust", 8)
+                pizza = Pizza(name, price, base, toppings_food)
+                self.menu.append(pizza)
+  
+
+    def orderPizza(self):
+        print("Menu:")
+        for pizza in self.menu:
+            print(f"{pizza.getName()}, {pizza.originalBase.getSize()}, {pizza.originalBase.getName()} ${float(pizza.getPrice()):.2f}:")
+            print(" " * 4 + ", ".join(topping.getName() for topping in pizza.currentToppings))
+
+        pizza_choice = input("What pizza would you like: ")
+        selected_pizza = None
+        found_pizza = False
+        for pizza in self.menu:
+            if pizza.getName() == pizza_choice:
+                selected_pizza = pizza.clone()
+                found_pizza = True
+
+        if found_pizza:
+            print("Your pizza:")
+            print(selected_pizza)
+            return selected_pizza
+        else:
+            print("We do not make that kind of pizza.")
+
+    def changeSize(self):
+        size_choice = input("What size pizza would you like (small/medium/large):")
+        if (size_choice == "small") or (size_choice == 'large') or (size_choice == 'medium'):
+            newPizza = self.orderPizza().originalBase.setSize(size_choice)
+            print("Your pizza:")
+            print(newPizza)
+        else:
+            print("The size must be small/medium/large")
+
+    def changeBase(self, pizza):
+        print("Bases:")
+        for base in self.bases:
+            print(base.getName())
+        base_choice = input("What base would you like: ")
+
+        for base in self.bases:
+            if base.getName() == base_choice:
+                pizza.currentBase = base.clone()
+                break
+        
+        print("Your pizza:")
+        print(pizza)
+
+    def addTopping(self):
+        print("Toppings:")
+        for ingredient in self.ingredients:
+            if not isinstance(ingredient, PizzaBase):
+                print(f"{ingredient.getName()} ${ingredient.getPrice():.2f}")
+
+        topping_choice = input("What topping would you like to add: ")
+        selected_topping = next((topping.clone() for topping in self.ingredients if not isinstance(topping, PizzaBase) and topping.getName() == topping_choice), None)
+
+        if selected_topping is not None:
+            selected_pizza.addTopping(selected_topping)
+            print("Your pizza:")
+            print(selected_pizza)
+        else:
+            print("Invalid topping choice.")
     
+    def removeTopping(self):
+        print("Toppings:")
+        for topping in selected_pizza.currentToppings:
+            print(topping.getName())
+
+        topping_choice = input("What topping would you like to remove: ")
+        selected_pizza.removeTopping(topping_choice)
+
+        print("Your pizza:")
+        print(selected_pizza)
+
+    def displayOrder(self):
+        print("So far you have ordered...")
+        for pizza in self.order_history:
+            print(pizza)
+
+    def saveReceipt(self, customer_name):
+        filename = f"{customer_name}_receipt.txt"
+        with open(filename, "w") as file:
+            file.write("Receipt:\n")
+            for pizza in self.order_history:
+                file.write(str(pizza) + "\n")
+            file.write(f"Enjoy your meal {customer_name}! :)")
 
 def main():
     # TODO Write your main program code here...
+    
     print("~~ Welcome to the Pizza Shop ~~")
-    # pizzaBase1 = PizzaBase('thin crust', 12, 10)
-    # print(pizzaBase1.costPerSquareInch())
-    # print(pizzaBase1.getPrice())
-    # pizzaBase1.scaleCost(14)
-    # print(pizzaBase1.getPrice())
-    # print(pizzaBase1.clone().getDiameter())
-    # base = PizzaBase('thin crust', 12, 10)
-    # chicken = Food('chicken', 4)
-    # onion = Food('onion', 1)
-    # mush = Food('mushroom', 4)
-    # spin = Food('spinach', 3)
-    # toppings = [chicken, onion, mush]
-    # p1 = Pizza('Meat lovers', 20, base, toppings)
-    # print(p1.getPrice())
-    # p1.addTopping(spin)
-    # print(p1)
-    # print(p1.getPrice())
-    # p1.removeTopping(mush)
-    # print(p1)
-    # print(p1.getPrice())
-    # p2 = p1.clone()
-    # print(p2)
-    # print(p1.equalCheck(p2))
-    
+    name = input("Please enter your name: ")
+    while len(name.split()) < 1:
+        name = input("Please enter at least 1 word for your name: ")
 
-    
+    shop = PizzaShop()
+    shop.load_ingredients()
+    shop.load_menu()
+    # print(shop.menu)
+    while True:
+        print("1. Order Pizza")
+        print("2. Display orders")
+        print("3. Exit")
+        choice = input("How may I help you: ")
 
+        if choice == '1':
+            pizza_choice = shop.orderPizza()
+            while True:
+                if pizza_choice is None:
+                    break
+                print("Submenu:")
+                print("1. Change Size")
+                print("2. Change Pizza Base")
+                print("3. Add Topping")
+                print("4. Remove Topping")
+                print("5. Order")
+                print("6. Cancel")
+                sub_choice = input("What would you like to do: ")
+                if sub_choice == '1':
+                    # Code for changing size
+                    pass
+                elif sub_choice == '2':
+                    # Code for changing pizza base
+                    pass
+                elif sub_choice == '3':
+                    # Code for adding topping
+                    pass
+                elif sub_choice == '4':
+                    # Code for removing topping
+                    pass
+                elif sub_choice == '5':
+                    # Code for placing the order
+                    shop.orderHistory.append(pizza_choice)
+                    break
+                elif sub_choice == '6':
+                    # Code for canceling the order
+                    break
+                else:
+                    print("Invalid submenu choice.")
+            continue  # Continue to the next iteration of the outer loop
+        elif choice == '2':
+            print("Displaying orders...")
+            # Code to display orders
+        elif choice == '3':
+            print(f"Have a good day, {name}! :)")
+            break
+        else:
+            print("Please select either 1, 2, or 3.")
 
-
-# WARNING: Do not write any code in global scope
+#WARNING: Do not write any code in global scope
 
 if __name__ == '__main__':
     main()
