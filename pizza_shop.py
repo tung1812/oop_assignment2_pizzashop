@@ -250,43 +250,50 @@ class PizzaShop:
             print(f"{base_choice} is not a base.")
             return None
 
-    def addTopping(self):
+    def addTopping(self, pizza):
         print("Toppings:")
         for ingredient in self.ingredients:
             if not isinstance(ingredient, PizzaBase):
                 print(f"{ingredient.getName()} ${ingredient.getPrice():.2f}")
 
         topping_choice = input("What topping would you like to add: ")
-        selected_topping = next((topping.clone() for topping in self.ingredients if not isinstance(topping, PizzaBase) and topping.getName() == topping_choice), None)
+        
+        for topping in self.ingredients:
+            if not isinstance(topping, PizzaBase) and topping.getName() == topping_choice:
+                selected_topping = topping.clone() 
 
         if selected_topping is not None:
-            selected_pizza.addTopping(selected_topping)
+            pizza.addTopping(selected_topping)
             print("Your pizza:")
-            print(selected_pizza)
+            print(pizza)
         else:
             print("Invalid topping choice.")
     
-    def removeTopping(self):
+    def removeTopping(self, pizza):
         print("Toppings:")
-        for topping in selected_pizza.currentToppings:
+        for topping in pizza.currentToppings:
             print(topping.getName())
 
         topping_choice = input("What topping would you like to remove: ")
-        selected_pizza.removeTopping(topping_choice)
-
-        print("Your pizza:")
-        print(selected_pizza)
+        if topping_choice in [topping.getName() for topping in pizza.currentToppings]:
+            topping_choice = topping
+            pizza.removeTopping(topping_choice)
+            print("Your pizza:")
+            print(pizza)
+        else:
+            print(f"Could not find '{topping_choice}' topping.")
 
     def displayOrder(self):
         print("So far you have ordered...")
-        for pizza in self.order_history:
+        for pizza in self.orderHistory:
             print(pizza)
+            print(self.orderHistory)
 
     def saveReceipt(self, customer_name):
         filename = f"{customer_name}_receipt.txt"
         with open(filename, "w") as file:
             file.write("Receipt:\n")
-            for pizza in self.order_history:
+            for pizza in self.self.orderHistory:
                 file.write(str(pizza) + "\n")
             file.write(f"Enjoy your meal {customer_name}! :)")
 
@@ -329,10 +336,10 @@ def main():
                     shop.changeBase(pizza_choice)
                 elif sub_choice == '3':
                     # Code for adding topping
-                    pass
+                    shop.addTopping(pizza_choice)
                 elif sub_choice == '4':
                     # Code for removing topping
-                    pass
+                    shop.removeTopping(pizza_choice)
                 elif sub_choice == '5':
                     # Code for placing the order
                     shop.orderHistory.append(pizza_choice)
