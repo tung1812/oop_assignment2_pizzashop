@@ -97,7 +97,7 @@ class PizzaBase(Food):
         if self.__diameter is None:
             return f"{self.getName()}, diameter: Unknown, ${self.getPrice():.2f}"
         else:
-            return f"{self.getName()}, diameter: {self.__diameter} inch, ${self.getPrice():.2f}"
+            return f"{self.getSize()}, {self.getName()}, ${self.getPrice():.2f}"
 
 
 class Pizza(Food):
@@ -213,12 +213,12 @@ class PizzaShop:
         else:
             print("We do not make that kind of pizza.")
 
-    def changeSize(self):
+    def changeSize(self, pizza):
         size_choice = input("What size pizza would you like (small/medium/large):")
-        if (size_choice == "small") or (size_choice == 'large') or (size_choice == 'medium'):
-            newPizza = self.orderPizza().originalBase.setSize(size_choice)
+        if size_choice in ["small", "medium", "large"]:
+            pizza.originalBase.setSize(size_choice)
             print("Your pizza:")
-            print(newPizza)
+            print(pizza)
         else:
             print("The size must be small/medium/large")
 
@@ -309,7 +309,7 @@ def main():
                 sub_choice = input("What would you like to do: ")
                 if sub_choice == '1':
                     # Code for changing size
-                    pass
+                    shop.changeSize(pizza_choice)
                 elif sub_choice == '2':
                     # Code for changing pizza base
                     pass
