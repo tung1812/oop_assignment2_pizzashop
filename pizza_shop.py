@@ -33,7 +33,7 @@ class Food:
             raise TypeError("Cannot clone object of different class")
     def equalCheck(self, other):
         if isinstance(other, Food):
-            return (self.__name == other.__name) and (self.__price == other.__price)
+            return (self.getName() == other.getName()) and (self.getPrice() == other.getPrice())
         else: 
             return False
     def __repr__(self):
@@ -87,7 +87,7 @@ class Pizza(Food):
     def __init__(self, name, price, base, toppings):
         super().__init__(name, price)
         self.originalBase = base.clone()
-        self.currentBase = base.clone()
+        self.currentBase = None
         self.originalToppings = [t.clone() for t in toppings]
         self.currentToppings = [t.clone() for t in toppings]
 
@@ -95,19 +95,26 @@ class Pizza(Food):
         self.currentToppings.append(topping.clone())
 
     def removeTopping(self, topping):
-        if topping in self.currentToppings:
-            self.currentToppings.remove(topping)
+        self.currentToppings = [t for t in self.currentToppings if not t.equalCheck(topping)]
 
     def getPrice(self):
-        price = self.currentBase.getPrice() - self.originalBase.getPrice()
-        for topping in self.currentToppings:
-            if topping not in self.originalToppings:
-                price += topping.getPrice()
-        return price
+        price = super().getPrice()
+        if self.currentBase is not None:
+            price += self.currentBase.getPrice() - self.originalBase.getPrice()
 
+        for topping in self.currentToppings:
+            if not any(topping.equalCheck(originalTopping) for originalTopping in self.originalToppings):
+                price += topping.getPrice()
+
+        for topping in self.originalToppings:
+            if not any(topping.equalCheck(currentTopping) for currentTopping in self.currentToppings):
+                price -= topping.getPrice()
+
+        return price
+    
     def clone(self):
         if isinstance(self, Pizza):
-            return type(self)(self.getName(), self.originalBase, self.originalToppings)
+            return type(self)(self.getName(), self.getPrice(), self.originalBase, self.originalToppings)
         else:
             raise TypeError('Cannot clone object of different class')
 
@@ -116,12 +123,12 @@ class Pizza(Food):
             return False
         if self.getName() != other.getName():
             return False
-        if not self.currentBase.equals(other.currentBase):
+        if self.currentBase is not None and not self.currentBase.equalCheck(other.currentBase):
             return False
         if len(self.currentToppings) != len(other.currentToppings):
             return False
         for topping1, topping2 in zip(self.currentToppings, other.currentToppings):
-            if not topping1.equals(topping2):
+            if not topping1.equalCheck(topping2):
                 return False
         return True
 
@@ -130,54 +137,35 @@ class Pizza(Food):
 
 class PizzaShop:
     def __init__(self):
-        self.ingredients = {}
-        self.menu = {}
+        self.ingredients = []
+        self.menu = []
 
+    def load_ingredients(self):
         with open(os.path.join('files', 'ingredients.txt')) as file:
             for line in file:
-                name, price = line.strip().split(',')
-                self.ingredients[name] = float(price)
-
-        with open(os.path.join('files', 'menu.txt')) as file:
-            for line in file:
-                name, base_name, topping_names = line.strip().split('|')
-                base = PizzaBase(base_name, self.ingredients[base_name])
-                toppings = [Topping(name, self.ingredients[name]) for name in topping_names.split(',')]
-                pizza = Pizza(name, base, toppings)
-                self.menu[name] = pizza
-
-    def displayMenu(self):
-        print("Menu:")
-        for name, pizza in self.menu.items():
-            print(name, "-", pizza.get_price())
-
-    def orderPizza(self, name):
-        if name not in self.menu:
-            print("Sorry, we don't have that pizza.")
-            return
-        pizza = self.menu[name].clone()
-        while True:
-            print(pizza)
-            print("Options:")
-            print("1. Add topping")
-            print("2. Remove topping")
-            print("3. Confirm order")
-            choice = input("Enter an option number: ")
-            if choice == "1":
-                topping_name = input("Enter topping name: ")
-                if topping_name in self.ingredients:
-                    topping = Topping(topping_name, self.ingredients[topping_name])
-                    pizza.add_topping(topping)
+                line = line.strip()
+                if line.startswith('base:'):
+                    name, price = line[5:].strip().split('$')
+                    base = PizzaBase(name.strip(), 0, float(price))
+                    self.menu.append(base)
                 else:
-                    print("Sorry, we don't have that topping.")
-            elif choice == "2":
-                topping_name = input("Enter topping name: ")
-                toppings = [t.name for t in pizza.currentToppings]
-                if topping_name in toppings:
-                    topping = Topping(topping_name, self.ingredients[topping_name])
-                    pizza.remove
+                    name, price = line.strip().split('$')
+                    ingredient = Food(name.strip(), float(price))
+                    self.ingredients.append(ingredient)
 
+        # Read the menu from menu.txt
+    def load_menu(self):
+        pizzas = []
+        with open('menu.txt', 'r') as f:
+            for line in f:
+                parts = line.strip().split('$')
+                name = parts[0]
+                price = float(parts[1])
+                base, *toppings = parts[2].split(', ')
+                pizzas.append(Pizza(name, price, base, toppings))
+        return pizzas
 
+    
 
 def main():
     # TODO Write your main program code here...
@@ -188,21 +176,26 @@ def main():
     # pizzaBase1.scaleCost(14)
     # print(pizzaBase1.getPrice())
     # print(pizzaBase1.clone().getDiameter())
-    ogBase = PizzaBase('thin crust', 12, 10)
-    currentBase = PizzaBase('chese crust', 13, 14)
-    chicken = Food('chicken', 4)
-    onion = Food('onion', 1)
-    mush = Food('mushroom', 2.5)
-    spin = Food('spinach', 3)
-    ogToppings = [chicken, onion, mush]
-    currentToppings = [chicken, onion, spin]
-    p1 = Pizza('Meat lovers', 20, ogBase, ogToppings)
-    p1.addTopping(spin)
-    print(p1)
-    p1.removeTopping(onion)
-    print(p1)
+    # base = PizzaBase('thin crust', 12, 10)
+    # chicken = Food('chicken', 4)
+    # onion = Food('onion', 1)
+    # mush = Food('mushroom', 4)
+    # spin = Food('spinach', 3)
+    # toppings = [chicken, onion, mush]
+    # p1 = Pizza('Meat lovers', 20, base, toppings)
+    # print(p1.getPrice())
+    # p1.addTopping(spin)
+    # print(p1)
+    # print(p1.getPrice())
+    # p1.removeTopping(mush)
+    # print(p1)
+    # print(p1.getPrice())
+    # p2 = p1.clone()
+    # print(p2)
+    # print(p1.equalCheck(p2))
+    
 
-
+    
 
 
 

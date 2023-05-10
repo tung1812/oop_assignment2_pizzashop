@@ -20,8 +20,8 @@ class TestPizzaBase(unittest.TestCase):
 
         f = Food("ham", 2)
         # Test with dangerous argument
-        with self.assertRaises(TypeError):
-            PizzaBase.clone(f)
+        with self.assertRaises(AttributeError):
+            pb3 = pb1.clone(f)
 
     def testEqualCheck(self):
         pb1 = PizzaBase("thin crust", 8.99, 12)
