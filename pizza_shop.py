@@ -287,13 +287,12 @@ class PizzaShop:
         print("So far you have ordered...")
         for pizza in self.orderHistory:
             print(pizza)
-            print(self.orderHistory)
 
     def saveReceipt(self, customer_name):
         filename = f"{customer_name}_receipt.txt"
         with open(filename, "w") as file:
             file.write("Receipt:\n")
-            for pizza in self.self.orderHistory:
+            for pizza in self.orderHistory:
                 file.write(str(pizza) + "\n")
             file.write(f"Enjoy your meal {customer_name}! :)")
 
@@ -353,7 +352,9 @@ def main():
         elif choice == '2':
             print("Displaying orders...")
             # Code to display orders
+            shop.displayOrder()
         elif choice == '3':
+            shop.saveReceipt(name)
             print(f"Have a good day, {name}! :)")
             break
         else:
