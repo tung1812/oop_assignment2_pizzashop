@@ -127,7 +127,7 @@ class Pizza(Food):
             if not any(topping.equalCheck(currentTopping) for currentTopping in self.currentToppings):
                 price -= topping.getPrice()
 
-        return price
+        return float(price)
     
     def clone(self):
         if isinstance(self, Pizza):
@@ -150,7 +150,10 @@ class Pizza(Food):
         return True
 
     def __str__(self):
-        return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.originalBase} toppings: {self.currentToppings}"
+        if self.currentBase is None:
+            return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.originalBase} toppings: {self.currentToppings}"
+        else:
+            return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.currentBase} toppings: {self.currentToppings}"
 
 
 
@@ -209,7 +212,7 @@ class PizzaShop:
         if found_pizza:
             print("Your pizza:")
             print(selected_pizza)
-            return selected_pizza
+            return selected_pizza.clone()
         else:
             print("We do not make that kind of pizza.")
 
@@ -219,22 +222,33 @@ class PizzaShop:
             pizza.originalBase.setSize(size_choice)
             print("Your pizza:")
             print(pizza)
+            return pizza
         else:
             print("The size must be small/medium/large")
+            return None
+
 
     def changeBase(self, pizza):
         print("Bases:")
-        for base in self.bases:
-            print(base.getName())
-        base_choice = input("What base would you like: ")
+        for ingredient in self.ingredients:
+            if isinstance(ingredient, PizzaBase):
+                print(ingredient.getName())
 
-        for base in self.bases:
-            if base.getName() == base_choice:
-                pizza.currentBase = base.clone()
-                break
+        base_choice = input("What base would you like: ")
+        base_found = False
+        for ingredient in self.ingredients:
+            if isinstance(ingredient, PizzaBase) and ingredient.getName() == base_choice:
+                pizza.currentBase = ingredient.clone()
+                base_found = True
+
         
-        print("Your pizza:")
-        print(pizza)
+        if base_found:
+            print("Your pizza:")
+            print(pizza)
+            return pizza
+        else:
+            print(f"{base_choice} is not a base.")
+            return None
 
     def addTopping(self):
         print("Toppings:")
@@ -312,7 +326,7 @@ def main():
                     shop.changeSize(pizza_choice)
                 elif sub_choice == '2':
                     # Code for changing pizza base
-                    pass
+                    shop.changeBase(pizza_choice)
                 elif sub_choice == '3':
                     # Code for adding topping
                     pass
