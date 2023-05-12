@@ -9,6 +9,8 @@ import os
 
 
 class Food:
+    '''Initializes a new instance of the Food class.
+    '''
     def __init__(self, name, price):
         self.__name = name
         self.__price = price
@@ -17,9 +19,9 @@ class Food:
         return self.__name
     def getPrice(self):
         return self.__price
+    
     def setPrice(self, price):
         self.__price = price
-        return price
     def getStrPrice(self):
         return f"${self.__price:.2f}"
     
@@ -38,12 +40,14 @@ class Food:
         return f"name: {self.__name}, price: {self.__price}$"
 
 class PizzaBase(Food):
+    ''' This represents the round base that the Pizza ingredients are added to.
+    '''
     def __init__(self, name, price):
+        '''Initialises the PizzaBase attributes including name, price and diameter
+        '''
         super().__init__(name, price)
         self.__diameter = 14
 
-    # def setDiameter(self, diameter):
-    #     self.__diameter = diameter
 
     def getDiameter(self):
         return self.__diameter
@@ -59,9 +63,13 @@ class PizzaBase(Food):
             return (
                 self.getName() == other.getName()
                 and self.getPrice() == other.getPrice())
+        else:
+            raise TypeError("Wrong type of object")
 
 
     def costPerSquareInch(self):
+        if self.getPrice() < 0:
+            raise ValueError("Invalid price: price cannot be negative")
         radius = self.__diameter / 2
         return self.getPrice() / (math.pi * radius ** 2)
 
@@ -103,7 +111,9 @@ class Pizza(Food):
         super().__init__(name, price)
         self.originalBase = base.clone()
         self.currentBase = None
-        self.originalToppings = [t.clone() for t in toppings]
+        self.originalToppings = []
+        for t in toppings:
+            self.originalToppings.append(t.clone() )
         self.currentToppings = [t.clone() for t in toppings]
 
     def addTopping(self, topping):
@@ -148,11 +158,11 @@ class Pizza(Food):
         return True
 
     def __str__(self):
+        toppings_str = (' ' * 4) + (', ').join(topping.getName() for topping in self.currentToppings)
         if self.currentBase is None:
-            return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.originalBase} toppings: {self.currentToppings}"
+            return f"Your Pizza: {self.getName()} base: {self.originalBase.getName()} ${self.getPrice()}\n{toppings_str}"
         else:
-            return f"Name: {self.getName()} price: ${self.getPrice()} base: {self.currentBase} toppings: {self.currentToppings}"
-
+            return f"Your Pizza: {self.getName()} base: {self.currentBase.getName()} ${self.getPrice()}\n{toppings_str}"
 
 
     
@@ -162,7 +172,7 @@ class PizzaShop:
         self.ingredients = []
         self.menu = []
         self.orderHistory = []
-    def load_ingredients(self):
+    def loadIngredients(self):
         with open(os.path.join('files', 'ingredients.txt')) as file:
             for line in file:
                 line = line.strip()
@@ -175,7 +185,7 @@ class PizzaShop:
                     ingredient = Food(name.strip(), float(price))
                     self.ingredients.append(ingredient)
 
-    def load_menu(self):
+    def loadMenu(self):
         with open(os.path.join('files', 'menu.txt'), 'r') as file:
             for line in file:
                 name = line[0 : line.index("$") - 1]
@@ -298,6 +308,9 @@ class PizzaShop:
                 file.write(str(pizza) + "\n")
             file.write(f"Enjoy your meal {customer_name}! :)")
 
+    def menu(self):
+        pass
+
 def main():
     
     print("~~ Welcome to the Pizza Shop ~~")
@@ -308,6 +321,8 @@ def main():
     shop = PizzaShop()
     shop.load_ingredients()
     shop.load_menu()
+    shop.menu()
+
     
     exit_program = False
     while not exit_program:
