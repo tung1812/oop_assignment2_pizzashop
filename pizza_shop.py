@@ -4,8 +4,6 @@
 # Description: your program description...
 # This is my own work as defined by the Academic Integrity policy. 
 import math
-import os
-
 
 
 class Food:
@@ -128,11 +126,11 @@ class Pizza(Food):
             price += self.currentBase.getPrice() - self.originalBase.getPrice()   
 
         for topping in self.currentToppings:
-            if not any(topping.equalCheck(originalTopping) for originalTopping in self.originalToppings):
+            if not any(topping.equalCheck(originalTopping) for originalTopping in self.originalToppings):   # Check if the toppings in the currentTopping list is in the originalTopping list
                 price += topping.getPrice()
 
         for topping in self.originalToppings:
-            if not any(topping.equalCheck(currentTopping) for currentTopping in self.currentToppings):
+            if not any(topping.equalCheck(currentTopping) for currentTopping in self.currentToppings):  # Check if the toppings in the originalTopping list is in the currentTopping list
                 price -= topping.getPrice()
 
         return float(price)
@@ -150,10 +148,12 @@ class Pizza(Food):
             return False
         if self.currentBase is not None and not self.currentBase.equalCheck(other.currentBase):
             return False
+        if self.currentBase is None and not self.originalBase.equalCheck(other.originalBase):
+            return False
         if len(self.currentToppings) != len(other.currentToppings):
             return False
-        for topping1, topping2 in zip(self.currentToppings, other.currentToppings):
-            if not topping1.equalCheck(topping2):
+        for i in range(len(self.currentToppings)):
+            if not self.currentToppings[i].equalCheck(other.currentToppings[i]):
                 return False
         return True
 
@@ -173,7 +173,7 @@ class PizzaShop:
         self.menu = []
         self.orderHistory = []
     def loadIngredients(self):
-        with open(os.path.join('files', 'ingredients.txt')) as file:
+        with open(('files/ingredients.txt')) as file:
             for line in file:
                 line = line.strip()
                 if line.startswith('base:'):
@@ -186,7 +186,7 @@ class PizzaShop:
                     self.ingredients.append(ingredient)
 
     def loadMenu(self):
-        with open(os.path.join('files', 'menu.txt'), 'r') as file:
+        with open(('files/menu.txt'), 'r') as file:
             for line in file:
                 name = line[0 : line.index("$") - 1]
                 price = line[line.index("$")+1 : line.index("$") + 3]
@@ -300,11 +300,7 @@ class PizzaShop:
             print(pizza)
 
     def saveReceipt(self, customer_name):
-        receipt_directory_name = os.path.join("files", "receipt")
-        if not os.path.exists(receipt_directory_name):
-            os.mkdir(receipt_directory_name)
-        filename = filename = os.path.join(receipt_directory_name, f"{customer_name}_receipt.txt")
-
+        filename = (f"files/receipt/{customer_name}_receipt.txt")
         with open(filename, "w") as file:
             file.write("Receipt:\n")
             for pizza in self.orderHistory:
