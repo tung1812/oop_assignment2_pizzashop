@@ -1,94 +1,195 @@
 # File: pizza_shop.py 
 # Author: Nguyen Son Tung
 # Id: 43185
-# Description: your program description...
+# Description: The code represents a simple pizza ordering system implemented using object-oriented programming in Python. It consists of several classes that interact with each other to handle pizza orders, manage ingredients, and generate receipts.
 # This is my own work as defined by the Academic Integrity policy. 
 import math
 
-
+'''Represents a generic food item with a name and price.
+'''
 class Food:
+
     '''Initializes a new instance of the Food class.
+    
+        Args:
+            name (str): The name of the food item.
+            price (float): The price of the food item.
     '''
     def __init__(self, name, price):
         self.__name = name
         self.__price = price
 
+    '''Returns the name of the food item.
+    
+        Returns:
+            str: The name of the food item.
+    '''
     def getName(self):
         return self.__name
+    
+    '''Returns the price of the food item.
+    
+        Returns:
+            float: The price of the food item.
+    '''
     def getPrice(self):
         return self.__price
     
+    '''Sets the price of the food item.
+    
+        Args:
+            price (float): The new price of the food item.
+    '''
     def setPrice(self, price):
         self.__price = price
+
+    '''Returns the formatted price of the food item.
+    
+        Returns:
+            str: The formatted price of the food item (e.g., "$10.00").
+    '''
     def getStrPrice(self):
         return f"${self.__price:.2f}"
     
+    '''Creates a clone of the food item.
+    
+        Returns:
+            Food: A new instance of the same food item class with the same name and price.
+        
+        Raises:
+            TypeError: If the object being cloned is not an instance of the Food class.
+    '''
     def clone(self):
-        # return Food(self.__name, self.__price)
         if isinstance(self, Food):
-            return type(self)(self.__name, self.__price)
+            return type(self)(self.__name, self.__price)  # Create a new instance of the same class with the same name and price
         else:
             raise TypeError("Cannot clone object of different class")
+        
+    '''Checks if another food item is equal to the current food item.
+    
+        Args:
+            other (Food): The other food item to compare with.
+
+        Returns:
+            bool: True if the food items are equal, False otherwise.
+    '''
     def equalCheck(self, other):
         if isinstance(other, Food):
-            return (self.getName() == other.getName()) and (self.getPrice() == other.getPrice())
+            return (self.getName() == other.getName()) and (self.getPrice() == other.getPrice()) # Compare the name and price of the food items
         else: 
             return False
+    '''Returns a string representation of the food item.
+
+        Returns:
+            str: A string representation of the food item in the format "name: <name>, price: <price>$".
+    '''
     def __repr__(self):
         return f"name: {self.__name}, price: {self.__price}$"
 
+
+''' This represents the round base that the Pizza ingredients are added to.
+'''
 class PizzaBase(Food):
-    ''' This represents the round base that the Pizza ingredients are added to.
+        
+    '''Initialises the PizzaBase attributes including name, price and diameter
+
+        Args:
+            name (str): The name of the pizza base.
+            price (float): The price of the pizza base.
     '''
     def __init__(self, name, price):
-        '''Initialises the PizzaBase attributes including name, price and diameter
-        '''
         super().__init__(name, price)
-        self.__diameter = 14
+        self.__diameter = 14     # Default diameter is set to 14
 
+    '''Returns the diameter of the pizza base.
 
+        Returns:
+            int: The diameter of the pizza base.
+    '''
     def getDiameter(self):
         return self.__diameter
 
+    '''Creates a clone of the pizza base.
+    
+        Returns:
+            PizzaBase: A new instance of the PizzaBase class with the same name and price.
+
+        Raises:
+            TypeError: If the object being cloned is not an instance of the PizzaBase class.
+    '''
     def clone(self):
         if isinstance(self, PizzaBase):
-            return type(self)(self.getName(), self.getPrice())
+            return type(self)(self.getName(), self.getPrice())  # Create a new instance of the same class with the same name and price
         else:
             raise TypeError("Cannot clone object of different class")
 
+    '''Checks if another pizza base is equal to the current pizza base.
+    
+        Args:
+            other (PizzaBase): The other pizza base to compare with.
+
+        Returns:
+            bool: True if the pizza bases are equal, False otherwise.
+
+        Raises:
+            TypeError: If the object being compared is not an instance of the PizzaBase class.
+    '''
     def equalCheck(self, other):
         if isinstance(other, PizzaBase):
             return (
                 self.getName() == other.getName()
-                and self.getPrice() == other.getPrice())
+                and self.getPrice() == other.getPrice()) # Compare the name and price of the pizza bases
         else:
             raise TypeError("Wrong type of object")
 
+    '''Calculates the cost per square inch of the pizza base.
+    
+        Returns:
+            float: The cost per square inch of the pizza base.
 
+        Raises:
+            ValueError: If the price of the pizza base is negative.
+    '''
     def costPerSquareInch(self):
         if self.getPrice() < 0:
             raise ValueError("Invalid price: price cannot be negative")
         radius = self.__diameter / 2
         return self.getPrice() / (math.pi * radius ** 2)
 
+    '''Scales the cost of the pizza base based on the new diameter.
+    
+        Args:
+            diameter (int): The new diameter of the pizza base.
+    '''
     def scaleCost(self, diameter):
         costPerSquareInch = self.costPerSquareInch()
         self.__diameter = diameter
         newPrice = costPerSquareInch * math.pi * (diameter / 2)**2
         self.setPrice(newPrice)
 
+    '''Sets the size of the pizza base.
+    
+        Args:
+            size (str): The size of the pizza base ("small", "medium", or "large").
+
+        Raises:
+            ValueError: If the size is not one of "small", "medium", or "large".
+    '''
     def setSize(self, size):
         if size == "small":
-            # self.setDiameter(10)
-            self.scaleCost(10)
+            self.scaleCost(10) # Scale the cost based on the diameter
         elif size == "medium":
-            # self.setDiameter(12)
             self.scaleCost(12)
         elif size == "large":
-            # self.setDiameter(14)
             self.scaleCost(14)
         else:
             raise ValueError("Must be one of Small, Medium, Large")
+        
+    ''' Returns the size of the pizza base.
+
+        Returns:
+            str: The size of the pizza base ("small", "medium", or "large").
+    '''
     def getSize(self):
         if self.__diameter == 10:
             return "small"
@@ -96,7 +197,12 @@ class PizzaBase(Food):
             return "medium"
         if self.__diameter == 14:
             return "large"
-        
+    
+    '''Returns a string representation of the pizza base.
+
+        Returns:
+            str: The string representation of the pizza base.
+    '''
     def __str__(self):
         if self.__diameter is None:
             return f"{self.getName()}, diameter: Unknown, ${self.getPrice():.2f}"
@@ -104,7 +210,18 @@ class PizzaBase(Food):
             return f"{self.getSize()}, {self.getName()}, ${self.getPrice():.2f}"
 
 
+'''Represents a pizza with a name, price, base, and toppings.
+'''
 class Pizza(Food):
+
+    '''Initializes a new instance of the Pizza class.
+
+        Args:
+            name (str): The name of the pizza.
+            price (float): The price of the pizza.
+            base (PizzaBase): The original base of the pizza.
+            toppings (list): A list of original toppings for the pizza.
+    '''
     def __init__(self, name, price, base, toppings):
         super().__init__(name, price)
         self.originalBase = base.clone()
@@ -114,17 +231,34 @@ class Pizza(Food):
             self.originalToppings.append(t.clone())
         self.currentToppings = [t.clone() for t in toppings]
 
+    '''Adds a topping to the pizza.
+
+        Args:
+            topping (Food): The topping to be added.
+    '''
     def addTopping(self, topping):
         self.currentToppings.append(topping.clone())
 
+    '''Removes a topping from the pizza.
+
+        Args:
+            topping (Food): The topping to be removed.
+    '''
     def removeTopping(self, topping):
         self.currentToppings = [t for t in self.currentToppings if not t.equalCheck(topping)]
 
+    '''Calculates and returns the total price of the pizza.
+
+        Returns:
+            float: The total price of the pizza.
+    '''
     def getPrice(self):
         price = super().getPrice()
+        # Calculate price difference for the base
         if self.currentBase is not None:
             price += self.currentBase.getPrice() - self.originalBase.getPrice()   
 
+        # Calculate price difference for the toppings
         for topping in self.currentToppings:
             if not any(topping.equalCheck(originalTopping) for originalTopping in self.originalToppings):   # Check if the toppings in the currentTopping list is in the originalTopping list
                 price += topping.getPrice()
@@ -135,12 +269,25 @@ class Pizza(Food):
 
         return float(price)
     
+    '''Creates and returns a clone of the pizza.
+
+        Returns:
+            Pizza: A clone of the pizza.
+    '''
     def clone(self):
         if isinstance(self, Pizza):
             return type(self)(self.getName(), self.getPrice(), self.originalBase, self.originalToppings)
         else:
             raise TypeError('Cannot clone object of different class')
 
+    '''Checks if the pizza is equal to another pizza.
+
+        Args:
+            other (Pizza): The other pizza to compare with.
+
+        Returns:
+            bool: True if the pizzas are equal, False otherwise.
+    '''
     def equalCheck(self, other):
         if not isinstance(other, Pizza):
             return False
@@ -157,6 +304,11 @@ class Pizza(Food):
                 return False
         return True
 
+    '''Returns a string representation of the pizza.
+
+        Returns:
+            str: The string representation of the pizza.
+    '''
     def __str__(self):
         toppings_str = (' ' * 4) + (', ').join(topping.getName() for topping in self.currentToppings)
         if self.currentBase is None:
@@ -165,13 +317,19 @@ class Pizza(Food):
             return f"Your Pizza: {self.getName()} {self.currentBase.getSize()} {self.currentBase.getName()} ${self.getPrice()}\n{toppings_str}"
 
 
-    
-    
+'''Represents a pizza shop with ingredients, menu, and order history.
+'''
 class PizzaShop:
+    
+    '''Initializes a new instance of the PizzaShop class.
+    '''
     def __init__(self):
         self.ingredients = []
         self.menu = []
         self.orderHistory = []
+
+    '''Loads the ingredients from a file and adds them to the shop's ingredient list.
+    '''
     def loadIngredients(self):
         with open(('files/ingredients.txt')) as file:
             for line in file:
@@ -185,6 +343,9 @@ class PizzaShop:
                     ingredient = Food(name.strip(), float(price))
                     self.ingredients.append(ingredient)
 
+
+    '''Loads the menu from a file and adds the pizzas to the shop's menu.
+    '''
     def loadMenu(self):
         with open(('files/menu.txt'), 'r') as file:
             for line in file:
@@ -203,6 +364,11 @@ class PizzaShop:
                 self.menu.append(pizza)
   
 
+    '''Displays the menu and allows the user to order a pizza from the menu.
+
+        Returns:
+            Pizza: The selected pizza from the menu.
+    '''
     def orderPizza(self):
         print("Menu:")
         for pizza in self.menu:
@@ -224,6 +390,14 @@ class PizzaShop:
         else:
             print("We do not make that kind of pizza.")
 
+    '''Changes the size of a pizza based on user input.
+
+        Args:
+            pizza (Pizza): The pizza to change the size of.
+
+        Returns:
+            Pizza: The pizza with the updated size.
+    '''
     def changeSize(self, pizza):
         size_choice = input("What size pizza would you like (small/medium/large):")
         if size_choice in ["small", "medium", "large"]:
@@ -238,7 +412,14 @@ class PizzaShop:
             print("The size must be small/medium/large")
             return None
 
+    '''Changes the base of a pizza based on user input.
 
+        Args:
+            pizza (Pizza): The pizza to change the base of.
+
+        Returns:
+            Pizza: The pizza with the updated base.
+    '''
     def changeBase(self, pizza):
         print("Bases:")
         for ingredient in self.ingredients:
@@ -252,7 +433,6 @@ class PizzaShop:
                 pizza.currentBase = ingredient.clone()
                 base_found = True
 
-        
         if base_found:
             print("Your pizza:")
             print(pizza)
@@ -261,6 +441,11 @@ class PizzaShop:
             print(f"{base_choice} is not a base.")
             return None
 
+    '''Adds a topping to a pizza based on user input.
+
+        Args:
+            pizza (Pizza): The pizza to add the topping to.
+    '''
     def addTopping(self, pizza):
         print("Toppings:")
         for ingredient in self.ingredients:
@@ -280,6 +465,11 @@ class PizzaShop:
         else:
             print("Invalid topping choice.")
     
+    '''Removes a topping from a pizza based on user input.
+
+        Args:
+            pizza (Pizza): The pizza to remove the topping from.
+    '''
     def removeTopping(self, pizza):
         print("Toppings:")
         for topping in pizza.currentToppings:
@@ -294,11 +484,18 @@ class PizzaShop:
         else:
             print(f"Could not find '{topping_choice}' topping.")
 
+    '''Displays the order history.
+    '''
     def displayOrder(self):
         print("So far you have ordered...")
         for pizza in self.orderHistory:
             print(pizza)
 
+    '''Saves the order receipt to a file.
+
+        Args:
+            customer_name (str): The name of the customer.
+    '''
     def saveReceipt(self, customer_name):
         filename = (f"files/receipt/{customer_name}_receipt.txt")
         with open(filename, "w") as file:
@@ -307,6 +504,9 @@ class PizzaShop:
                 file.write(str(pizza) + "\n")
             file.write(f"Enjoy your meal {customer_name}! :)")
 
+
+    '''Displays the main menu interface and handles user interactions.
+    '''
     def menuInterface(self):
         print("~~ Welcome to the Pizza Shop ~~")
         name = input("Please enter your name: ")
@@ -362,7 +562,7 @@ class PizzaShop:
 
             else:
                 print("Please select either 1, 2, or 3.")
-
+# main function
 def main():
     shop = PizzaShop()
     shop.loadIngredients()
