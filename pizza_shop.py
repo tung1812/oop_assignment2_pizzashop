@@ -113,7 +113,7 @@ class Pizza(Food):
         self.currentBase = None
         self.originalToppings = []
         for t in toppings:
-            self.originalToppings.append(t.clone() )
+            self.originalToppings.append(t.clone())
         self.currentToppings = [t.clone() for t in toppings]
 
     def addTopping(self, topping):
@@ -125,7 +125,7 @@ class Pizza(Food):
     def getPrice(self):
         price = super().getPrice()
         if self.currentBase is not None:
-            price += self.currentBase.getPrice() - self.originalBase.getPrice()
+            price += self.currentBase.getPrice() - self.originalBase.getPrice()   
 
         for topping in self.currentToppings:
             if not any(topping.equalCheck(originalTopping) for originalTopping in self.originalToppings):
@@ -160,9 +160,9 @@ class Pizza(Food):
     def __str__(self):
         toppings_str = (' ' * 4) + (', ').join(topping.getName() for topping in self.currentToppings)
         if self.currentBase is None:
-            return f"Your Pizza: {self.getName()} base: {self.originalBase.getName()} ${self.getPrice()}\n{toppings_str}"
+            return f"Your Pizza: {self.getName()} {self.originalBase.getSize()} {self.originalBase.getName()} ${self.getPrice()}\n{toppings_str}"
         else:
-            return f"Your Pizza: {self.getName()} base: {self.currentBase.getName()} ${self.getPrice()}\n{toppings_str}"
+            return f"Your Pizza: {self.getName()} {self.currentBase.getSize()} {self.currentBase.getName()} ${self.getPrice()}\n{toppings_str}"
 
 
     
@@ -227,7 +227,10 @@ class PizzaShop:
     def changeSize(self, pizza):
         size_choice = input("What size pizza would you like (small/medium/large):")
         if size_choice in ["small", "medium", "large"]:
-            pizza.originalBase.setSize(size_choice)
+            # Create a new instance of the current base with the updated size
+            new_base = pizza.originalBase.clone()
+            new_base.setSize(size_choice)
+            pizza.currentBase = new_base
             print("Your pizza:")
             print(pizza)
             return pizza
@@ -319,9 +322,9 @@ def main():
         name = input("Please enter at least 1 word for your name: ")
 
     shop = PizzaShop()
-    shop.load_ingredients()
-    shop.load_menu()
-    shop.menu()
+    shop.loadIngredients()
+    shop.loadMenu()
+    # shop.menu()
 
     
     exit_program = False
