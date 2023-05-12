@@ -311,72 +311,70 @@ class PizzaShop:
                 file.write(str(pizza) + "\n")
             file.write(f"Enjoy your meal {customer_name}! :)")
 
-    def menu(self):
-        pass
+    def menuInterface(self):
+        print("~~ Welcome to the Pizza Shop ~~")
+        name = input("Please enter your name: ")
+        while len(name.split()) < 1:
+            name = input("Please enter at least 1 word for your name: ")
+        exit_program = False
+        while not exit_program:
+            print("1. Order Pizza")
+            print("2. Display orders")
+            print("3. Exit")
+            choice = input("How may I help you: ")
+
+            if choice == '1':
+                pizza_choice = self.orderPizza()
+                sub_choice = ''
+                while pizza_choice is not None and sub_choice != '6':
+                    print("Submenu:")
+                    print("1. Change Size")
+                    print("2. Change Pizza Base")
+                    print("3. Add Topping")
+                    print("4. Remove Topping")
+                    print("5. Order")
+                    print("6. Cancel")
+                    sub_choice = input("What would you like to do: ")
+                    if sub_choice == '1':
+                        # Code for changing size
+                        self.changeSize(pizza_choice)
+                    elif sub_choice == '2':
+                        # Code for changing pizza base
+                        self.changeBase(pizza_choice)
+                    elif sub_choice == '3':
+                        # Code for adding topping
+                        self.addTopping(pizza_choice)
+                    elif sub_choice == '4':
+                        # Code for removing topping
+                        self.removeTopping(pizza_choice)
+                    elif sub_choice == '5':
+                        # Code for placing the order
+                        self.orderHistory.append(pizza_choice)
+                        sub_choice = '6'
+                    elif sub_choice != '6':
+                        print("Invalid submenu choice.")
+
+            elif choice == '2':
+                print("Displaying orders...")
+                # Code to display orders
+                self.displayOrder()
+
+            elif choice == '3':
+                self.saveReceipt(name)
+                print(f"Have a good day, {name}! :)")
+                exit_program = True
+
+            else:
+                print("Please select either 1, 2, or 3.")
 
 def main():
-    
-    print("~~ Welcome to the Pizza Shop ~~")
-    name = input("Please enter your name: ")
-    while len(name.split()) < 1:
-        name = input("Please enter at least 1 word for your name: ")
-
     shop = PizzaShop()
     shop.loadIngredients()
     shop.loadMenu()
-    # shop.menu()
+    shop.menuInterface()
 
     
-    exit_program = False
-    while not exit_program:
-        print("1. Order Pizza")
-        print("2. Display orders")
-        print("3. Exit")
-        choice = input("How may I help you: ")
 
-        if choice == '1':
-            pizza_choice = shop.orderPizza()
-            sub_choice = ''
-            while pizza_choice is not None and sub_choice != '6':
-                print("Submenu:")
-                print("1. Change Size")
-                print("2. Change Pizza Base")
-                print("3. Add Topping")
-                print("4. Remove Topping")
-                print("5. Order")
-                print("6. Cancel")
-                sub_choice = input("What would you like to do: ")
-                if sub_choice == '1':
-                    # Code for changing size
-                    shop.changeSize(pizza_choice)
-                elif sub_choice == '2':
-                    # Code for changing pizza base
-                    shop.changeBase(pizza_choice)
-                elif sub_choice == '3':
-                    # Code for adding topping
-                    shop.addTopping(pizza_choice)
-                elif sub_choice == '4':
-                    # Code for removing topping
-                    shop.removeTopping(pizza_choice)
-                elif sub_choice == '5':
-                    # Code for placing the order
-                    shop.orderHistory.append(pizza_choice)
-                    sub_choice = '6'
-                elif sub_choice != '6':
-                    print("Invalid submenu choice.")
-
-        elif choice == '2':
-            print("Displaying orders...")
-            # Code to display orders
-            shop.displayOrder()
-
-        elif choice == '3':
-            shop.saveReceipt(name)
-            print(f"Have a good day, {name}! :)")
-            exit_program = True
-
-        else:
-            print("Please select either 1, 2, or 3.")
 #WARNING: Do not write any code in global scope
 
 if __name__ == '__main__':
