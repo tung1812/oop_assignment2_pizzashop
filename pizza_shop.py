@@ -1,14 +1,12 @@
-# TODO Claim this as your own work by modifying the following...
 # File: pizza_shop.py 
 # Author: Nguyen Son Tung
 # Id: 43185
 # Description: your program description...
 # This is my own work as defined by the Academic Integrity policy. 
 import math
-import copy
 import os
 
-# TODO Write your classes here...
+
 
 class Food:
     def __init__(self, name, price):
@@ -289,7 +287,11 @@ class PizzaShop:
             print(pizza)
 
     def saveReceipt(self, customer_name):
-        filename = f"{customer_name}_receipt.txt"
+        receipt_directory_name = os.path.join("files", "receipt")
+        if not os.path.exists(receipt_directory_name):
+            os.mkdir(receipt_directory_name)
+        filename = filename = os.path.join(receipt_directory_name, f"{customer_name}_receipt.txt")
+
         with open(filename, "w") as file:
             file.write("Receipt:\n")
             for pizza in self.orderHistory:
@@ -297,7 +299,6 @@ class PizzaShop:
             file.write(f"Enjoy your meal {customer_name}! :)")
 
 def main():
-    # TODO Write your main program code here...
     
     print("~~ Welcome to the Pizza Shop ~~")
     name = input("Please enter your name: ")
@@ -307,8 +308,9 @@ def main():
     shop = PizzaShop()
     shop.load_ingredients()
     shop.load_menu()
-    # print(shop.menu)
-    while True:
+    
+    exit_program = False
+    while not exit_program:
         print("1. Order Pizza")
         print("2. Display orders")
         print("3. Exit")
@@ -316,9 +318,8 @@ def main():
 
         if choice == '1':
             pizza_choice = shop.orderPizza()
-            while True:
-                if pizza_choice is None:
-                    break
+            sub_choice = ''
+            while pizza_choice is not None and sub_choice != '6':
                 print("Submenu:")
                 print("1. Change Size")
                 print("2. Change Pizza Base")
@@ -342,24 +343,22 @@ def main():
                 elif sub_choice == '5':
                     # Code for placing the order
                     shop.orderHistory.append(pizza_choice)
-                    break
-                elif sub_choice == '6':
-                    # Code for canceling the order
-                    break
-                else:
+                    sub_choice = '6'
+                elif sub_choice != '6':
                     print("Invalid submenu choice.")
-            continue  # Continue to the next iteration of the outer loop
+
         elif choice == '2':
             print("Displaying orders...")
             # Code to display orders
             shop.displayOrder()
+
         elif choice == '3':
             shop.saveReceipt(name)
             print(f"Have a good day, {name}! :)")
-            break
+            exit_program = True
+
         else:
             print("Please select either 1, 2, or 3.")
-
 #WARNING: Do not write any code in global scope
 
 if __name__ == '__main__':
